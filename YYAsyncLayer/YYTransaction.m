@@ -19,6 +19,9 @@
 
 static NSMutableSet *transactionSet = nil;
 
+/*
+监听runloop回调处理
+*/
 static void YYRunLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
     if (transactionSet.count == 0) return;
     NSSet *currentSet = transactionSet;
@@ -31,6 +34,10 @@ static void YYRunLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     }];
 }
 
+
+/*
+监听runloop
+*/
 static void YYTransactionSetup() {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -38,11 +45,11 @@ static void YYTransactionSetup() {
         CFRunLoopRef runloop = CFRunLoopGetMain();
         CFRunLoopObserverRef observer;
         
-        observer = CFRunLoopObserverCreate(CFAllocatorGetDefault(),
-                                           kCFRunLoopBeforeWaiting | kCFRunLoopExit,
-                                           true,      // repeat
+        observer = CFRunLoopObserverCreate(CFAllocatorGetDefault(), // 对象内存分配器
+                                           kCFRunLoopBeforeWaiting | kCFRunLoopExit, // 在睡眠和退出时来执行注册的事件
+                                           true,      // repeat，观察者是否循环调用
                                            0xFFFFFF,  // after CATransaction(2000000)
-                                           YYRunLoopObserverCallBack, NULL);
+                                           YYRunLoopObserverCallBack, NULL); // 回调事件
         CFRunLoopAddObserver(runloop, observer, kCFRunLoopCommonModes);
         CFRelease(observer);
     });
